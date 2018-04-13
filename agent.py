@@ -17,12 +17,17 @@ class Agent:
     def __init__(self) -> None:
         """Initalize weights to be a random np.ndarray of dimension 4.
         """
-        self.weights = np.random.rand(4)
+        self.weights = np.random.randn(4)
 
     def get_action(self, obs: np.ndarray) -> None:
-        """Get the agent's next action, given an observation obs.
+        """Get the agent's next action, given an observation <obs>.
         """
         if (np.dot(self.weights, obs)) >= 0:
             return 1
         else:
             return 0
+
+    def set_weights(self, weights: np.ndarray) -> None:
+        """Set the agents weights to <weights>.
+        """
+        self.weights = weights
