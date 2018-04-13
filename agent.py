@@ -2,6 +2,7 @@
 """
 
 import numpy as np
+from scipy.special import expit
 
 class Agent:
     """An agent in the environment.
@@ -19,7 +20,7 @@ class Agent:
         """
         self.weights = np.random.randn(4)
 
-    def get_action(self, obs: np.ndarray) -> None:
+    def get_action(self, obs: np.ndarray) -> int:
         """Get the agent's next action, given an observation <obs>.
         """
         if (np.dot(self.weights, obs)) >= 0:
@@ -31,3 +32,11 @@ class Agent:
         """Set the agents weights to <weights>.
         """
         self.weights = weights
+
+class StochasticAgent(Agent):
+    """An agent with a stochastic policy in the environment.
+    """
+
+    def get_action(self, obs: np.ndarray) -> int:
+        prob = expit(np.dot(self.weights, obs))
+        return np.random.choice([0, 1], p = [1 - prob, prob])
