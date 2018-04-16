@@ -2,10 +2,12 @@
 """
 
 import gym
-from agent import Agent
+from agent import Agent, StochasticAgent
 import train
 
 env = gym.make('CartPole-v1')
 observation = env.reset()
 
-agent = train.hill_climb(Agent())
+agent = train.reinforce(StochasticAgent())
+
+print(train.avg_reward(agent))

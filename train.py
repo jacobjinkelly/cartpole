@@ -1,9 +1,11 @@
 """This module contains methods for training agents.
 """
 
-from agent import Agent
+from agent import Agent, StochasticAgent
 import gym
 import numpy as np
+from scipy.special import expit
+from typing import Tuple, List
 
 def random(agent: Agent) -> Agent:
     """Initialize 10,000 agents randomly, and pick the best one.
@@ -56,3 +58,52 @@ def avg_reward(agent: Agent) -> float:
     for _ in range(100):
         sum += reward(agent)
     return sum/100.0
+
+def reinforce(agent: StochasticAgent) -> StochasticAgent:
+    """Trains an agent with a stochastic policy (<agent>) using the standard
+    REINFORCE policy gradient algorithm.
+    """
+    ALPHA = 0.1 # step size
+    K = 5 # number of rollouts to sample
+    HORIZON = 195 # time horizon for rollout
+
+    reward, data = sample_rollout(agent, K, HORIZON)
+
+    while reward < 100:
+        grad = np.zeros(4)
+        for i in range(len(data)):
+            state, action = data[i]
+            z = np.dot(agent.weights, state) # activation
+            sigmoid = expit(z)
+            grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
+
+        agent.weights += ALPHA * reward * grad
+        reward, data = sample_rollout(agent, K, HORIZON)
+
+    return agent
+
+def sample_rollout(agent: Agent, K: int, HORIZON: int) -> Tuple[float,
+                                                List[Tuple[np.ndarray, int]]]:
+    """Samples <K> rollouts with time horizon <HORIZON>, and returns a tuple
+    (avg reward, List(state, action))
+    """
+
+    env = gym.make('CartPole-v1')
+
+    cumulative_reward = 0
+    state_action = []
+
+    for i in range(K):
+        t = 0
+        done = False
+
+        observation = env.reset()
+
+        while (t < 195) and not done:
+            action = agent.get_action(observation)
+            state_action.append((observation, action))
+            observation, reward, done, info = env.step(action)
+            cumulative_reward += reward
+            t += 1
+
+    return (cumulative_reward / float(K), state_action)
