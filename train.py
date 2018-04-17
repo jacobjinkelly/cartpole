@@ -23,19 +23,25 @@ def random(agent: Agent, POPULATION: int, NUM_ROLLOUTS: int) -> Agent:
         agent = Agent()
     return best_agent
 
-def hill_climb(agent: Agent) -> Agent:
+def hill_climb(agent: Agent, NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float,
+                                                    MAX_REWARD: int) -> Agent:
     """Initialize an agent randomly, and randomly pertube the weights. If the
     random pertubation achieves better performance, update the weights.
+    Hyperparameters:
+    NUM_ROLLOUTS: number of trials to sample for avg_reward of agent.
+    MEAN: mean of gaussian which weight pertubations are sampled from.
+    STD_DEV: std dev of gaussian which weight pertubations are sampled from.
+    MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
     agent = Agent()
-    reward = avg_reward(agent, 5)
-    while (reward < 195):
-        pertub = 0.1 * np.random.randn(4)
+    reward = avg_reward(agent, NUM_ROLLOUTS)
+    while (reward < MAX_REWARD):
+        pertub = std_dev * np.random.randn(4) + mean
         agent.set_weights(agent.weights + pertub)
-        if (avg_reward(agent, 5) <= reward):
+        if (avg_reward(agent, NUM_ROLLOUTS) <= reward):
             agent.set_weights(agent.weights - pertub)
         else:
-            reward = avg_reward(agent, 5)
+            reward = avg_reward(agent, NUM_ROLLOUTS)
     return agent
 
 def reinforce(agent: StochasticAgent, ALPHA: float, NUM_ROLLOUTS: int,
@@ -46,7 +52,7 @@ def reinforce(agent: StochasticAgent, ALPHA: float, NUM_ROLLOUTS: int,
     ALPHA: step size
     NUM_ROLLOUTS: number of rollouts to sample
     HORIZON: time horizon for rollout
-    MAX_REWARD: train the agent until it achives <MAX_REWARD>
+    MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
 
     reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
