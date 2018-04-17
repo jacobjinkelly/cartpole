@@ -18,7 +18,7 @@ class Agent:
     def __init__(self, MEAN: float = 0, STD_DEV: float = 1) -> None:
         """Initalize weights over Gaussian with <MEAN> and <STD_DEV>.
         """
-        self.weights = std_dev * np.random.randn(4) + MEAN
+        self.weights = STD_DEV * np.random.randn(4) + MEAN
 
     def get_action(self, obs: np.ndarray) -> int:
         """Get the agent's next action, given an observation <obs>.
