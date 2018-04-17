@@ -8,15 +8,15 @@ import numpy as np
 from scipy.special import expit
 from typing import Tuple, List
 
-def random(agent: Agent) -> Agent:
-    """Initialize 10,000 agents randomly, and pick the best one.
+def random(agent: Agent, POPULATION: int, NUM_ROLLOUTS: int) -> Agent:
+    """Initialize <POPULATION> agents randomly, picks the best one.
+    The 'best' agent corresponds to the agent with the highest average reward
+    over <NUM_ROLLOUTS> trials.
     """
     max_reward = 0
     best_agent = None
-    for _ in range(100):
-        if _ % 100 == 0:
-            print(_)
-        reward = avg_reward(agent, 5)
+    for _ in range(POPULATION):
+        reward = avg_reward(agent, NUM_ROLLOUTS)
         if (max_reward < reward):
             best_agent = agent
             max_reward = reward
