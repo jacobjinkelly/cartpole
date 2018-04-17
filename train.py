@@ -5,6 +5,7 @@ from agent import Agent, StochasticAgent
 import gym
 import numpy as np
 from scipy.special import expit
+from __future__ import division # force float division
 from typing import Tuple, List
 
 def random(agent: Agent) -> Agent:
@@ -13,8 +14,13 @@ def random(agent: Agent) -> Agent:
     max_reward = 0
     best_agent = None
     for _ in range(10000):
-        if (max_reward < reward(agent)):
+        if _ % 100 == 0:
+            print(_)
+        reward = avg_reward(agent)
+        if (max_reward < reward):
             best_agent = agent
+            max_reward = reward
+        agent = Agent()
     return best_agent
 
 def hill_climb(agent: Agent) -> Agent:
@@ -31,33 +37,6 @@ def hill_climb(agent: Agent) -> Agent:
         else:
             r = avg_reward(agent)
     return agent
-
-def reward(agent: Agent) -> int:
-    """Returns the cumulative reward gained by <agent> in one episode in the
-    training environment.
-    """
-    env = gym.make('CartPole-v1')
-    observation = env.reset()
-
-    cumulative_reward = 0
-    t = 0
-    while True:
-        action = agent.get_action(observation)
-        observation, reward, done, info = env.step(action)
-        cumulative_reward += reward
-        if done:
-            break
-        t += 1
-
-    return cumulative_reward
-
-def avg_reward(agent: Agent) -> float:
-    """Returns the average cumulative reward over 100 trials.
-    """
-    sum = 0
-    for _ in range(100):
-        sum += reward(agent)
-    return sum/100.0
 
 def reinforce(agent: StochasticAgent) -> StochasticAgent:
     """Trains an agent with a stochastic policy (<agent>) using the standard
@@ -106,4 +85,48 @@ def sample_rollout(agent: Agent, K: int, HORIZON: int) -> Tuple[float,
             cumulative_reward += reward
             t += 1
 
-    return (cumulative_reward / float(K), state_action)
+    return (cumulative_reward / K, state_action)
+
+def reward(agent: Agent) -> int:
+    """Returns the cumulative reward gained by <agent> in one episode in the
+    training environment.
+    """
+    env = gym.make('CartPole-v1')
+    observation = env.reset()
+
+    cumulative_reward = 0
+    t = 0
+    while True:
+        action = agent.get_action(observation)
+        observation, reward, done, info = env.step(action)
+        cumulative_reward += reward
+        if done:
+            break
+        t += 1
+
+    return cumulative_reward
+
+def avg_reward(agent: Agent, num_trials: int) -> float:
+    """Returns the average cumulative reward over <num_trials> trials.
+    """
+    sum = 0
+    for _ in range(num_trials):
+        sum += reward(agent)
+    return sum / num_trials
+
+def render(agent: Agent) -> None:
+    """Renders <agent> interacting with <env> to the screen.
+    """
+
+    env = gym.make('CartPole-v1')
+    observation = env.reset()
+
+    t = 0
+    while True:
+        env.render()
+        action = agent.get_action(observation)
+        observation, reward, done, info = env.step(action)
+        if done:
+            print("Episode finished after {} timesteps".format(t+1))
+            break
+        t += 1
