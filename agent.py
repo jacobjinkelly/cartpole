@@ -15,7 +15,7 @@ class Agent:
     """
     weights: np.ndarray
 
-    def __init__(self, mean = 0, std_dev = 1) -> None:
+    def __init__(self, mean: float = 0, std_dev: float = 1) -> None:
         """Initalize weights over Gaussian with mean 0, std_dev 1.
         """
         self.weights = std_dev * np.random.randn(4) + mean
