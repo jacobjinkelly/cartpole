@@ -15,10 +15,10 @@ class Agent:
     """
     weights: np.ndarray
 
-    def __init__(self, mean: float = 0, std_dev: float = 1) -> None:
-        """Initalize weights over Gaussian with mean 0, std_dev 1.
+    def __init__(self, MEAN: float = 0, STD_DEV: float = 1) -> None:
+        """Initalize weights over Gaussian with <MEAN> and <STD_DEV>.
         """
-        self.weights = std_dev * np.random.randn(4) + mean
+        self.weights = std_dev * np.random.randn(4) + MEAN
 
     def get_action(self, obs: np.ndarray) -> int:
         """Get the agent's next action, given an observation <obs>.
