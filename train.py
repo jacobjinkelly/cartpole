@@ -1,11 +1,11 @@
 """This module contains methods for training agents.
 """
 
+from __future__ import division # force float division
 from agent import Agent, StochasticAgent
 import gym
 import numpy as np
 from scipy.special import expit
-from __future__ import division # force float division
 from typing import Tuple, List
 
 def random(agent: Agent) -> Agent:
@@ -13,10 +13,10 @@ def random(agent: Agent) -> Agent:
     """
     max_reward = 0
     best_agent = None
-    for _ in range(10000):
+    for _ in range(100):
         if _ % 100 == 0:
             print(_)
-        reward = avg_reward(agent)
+        reward = avg_reward(agent, 5)
         if (max_reward < reward):
             best_agent = agent
             max_reward = reward
@@ -28,14 +28,14 @@ def hill_climb(agent: Agent) -> Agent:
     random pertubation achieves better performance, update the weights.
     """
     agent = Agent()
-    r = avg_reward(agent)
-    while (r < 195):
+    reward = avg_reward(agent, 5)
+    while (reward < 195):
         pertub = 0.1 * np.random.randn(4)
         agent.set_weights(agent.weights + pertub)
-        if (avg_reward(agent) <= r):
+        if (avg_reward(agent, 5) <= reward):
             agent.set_weights(agent.weights - pertub)
         else:
-            r = avg_reward(agent)
+            reward = avg_reward(agent, 5)
     return agent
 
 def reinforce(agent: StochasticAgent) -> StochasticAgent:
@@ -43,10 +43,10 @@ def reinforce(agent: StochasticAgent) -> StochasticAgent:
     REINFORCE policy gradient algorithm.
     """
     ALPHA = 0.1 # step size
-    K = 5 # number of rollouts to sample
+    NUM_ROLLOUTS = 5 # number of rollouts to sample
     HORIZON = 195 # time horizon for rollout
 
-    reward, data = sample_rollout(agent, K, HORIZON)
+    reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
 
     while reward < 100:
         grad = np.zeros(4)
@@ -57,14 +57,14 @@ def reinforce(agent: StochasticAgent) -> StochasticAgent:
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
         agent.weights += ALPHA * reward * grad
-        reward, data = sample_rollout(agent, K, HORIZON)
+        reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
 
     return agent
 
-def sample_rollout(agent: Agent, K: int, HORIZON: int) -> Tuple[float,
-                                                List[Tuple[np.ndarray, int]]]:
-    """Samples <K> rollouts with time horizon <HORIZON>, and returns a tuple
-    (avg reward, List(state, action))
+def sample_rollout(agent: Agent, NUM_ROLLOUTS: int, HORIZON: int) ->
+                                    Tuple[float, List[Tuple[np.ndarray, int]]]:
+    """Samples <NUM_ROLLOUTS> rollouts with time horizon <HORIZON>, and returns
+    a tuple (avg reward, List(state, action))
     """
 
     env = gym.make('CartPole-v1')
@@ -72,7 +72,7 @@ def sample_rollout(agent: Agent, K: int, HORIZON: int) -> Tuple[float,
     cumulative_reward = 0
     state_action = []
 
-    for i in range(K):
+    for i in range(NUM_ROLLOUTS):
         t = 0
         done = False
 
@@ -85,7 +85,7 @@ def sample_rollout(agent: Agent, K: int, HORIZON: int) -> Tuple[float,
             cumulative_reward += reward
             t += 1
 
-    return (cumulative_reward / K, state_action)
+    return (cumulative_reward / NUM_ROLLOUTS, state_action)
 
 def reward(agent: Agent) -> int:
     """Returns the cumulative reward gained by <agent> in one episode in the
