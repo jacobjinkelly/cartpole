@@ -38,17 +38,20 @@ def hill_climb(agent: Agent) -> Agent:
             reward = avg_reward(agent, 5)
     return agent
 
-def reinforce(agent: StochasticAgent) -> StochasticAgent:
+def reinforce(agent: StochasticAgent, ALPHA: float, NUM_ROLLOUTS: int,
+                            HORIZON: int, MAX_REWARD: float) -> StochasticAgent:
     """Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
+    Hyperparameters:
+    ALPHA: step size
+    NUM_ROLLOUTS: number of rollouts to sample
+    HORIZON: time horizon for rollout
+    MAX_REWARD: train the agent until it achives <MAX_REWARD>
     """
-    ALPHA = 0.1 # step size
-    NUM_ROLLOUTS = 5 # number of rollouts to sample
-    HORIZON = 195 # time horizon for rollout
 
     reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
 
-    while reward < 100:
+    while reward < MAX_REWARD:
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
