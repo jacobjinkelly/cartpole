@@ -7,8 +7,6 @@ from scipy.special import expit
 class Agent:
     """An agent in the environment.
 
-    This is an abstract class. Only child classes should be instantiated.
-
     === Attributes ===
     weights:
         The weights used in the agent's linear model of the environment.
