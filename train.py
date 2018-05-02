@@ -8,7 +8,8 @@ import numpy as np
 from scipy.special import expit
 from typing import Tuple, List
 
-def random(POPULATION: int, NUM_ROLLOUTS: int) -> Agent:
+def random(POPULATION: int, NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float) \
+                                                                    -> Agent:
     """Initialize <POPULATION> agents randomly, picks the best one.
     The 'best' agent corresponds to the agent with the highest average reward
     over <NUM_ROLLOUTS> trials.
