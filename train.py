@@ -17,8 +17,6 @@ def random(POPULATION: int, NUM_ROLLOUTS: int) -> Agent:
     best_agent = None
     for _ in range(POPULATION):
         agent = Agent()
-        if _ % 50 == 0:
-            print(_)
         reward = avg_reward(agent, NUM_ROLLOUTS)
         if (max_reward < reward):
             best_agent = agent
@@ -37,20 +35,16 @@ def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float,
     """
     agent = Agent()
     reward = avg_reward(agent, NUM_ROLLOUTS)
-    i = 0
     while (reward < MAX_REWARD):
-        if i % 50 == 0:
-            print(i)
         pertub = STD_DEV * np.random.randn(4) + MEAN
         agent.set_weights(agent.weights + pertub)
         if (avg_reward(agent, NUM_ROLLOUTS) <= reward):
             agent.set_weights(agent.weights - pertub)
         else:
             reward = avg_reward(agent, NUM_ROLLOUTS)
-        i += 1
     return agent
 
-def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)
+def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
                                                             -> StochasticAgent:
     """Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
@@ -61,13 +55,9 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)
     MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
     agent = StochasticAgent()
-
+    prev_reward = 0
     reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
-    j = 0
     while reward < MAX_REWARD:
-        if j % 50 == 0:
-            print(j)
-            print(reward)
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
@@ -75,9 +65,8 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)
             sigmoid = expit(z)
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
-        agent.weights += ALPHA * reward * grad
-        reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
-        j += 1
+        agent.weights += ALPHA * (reward - prev_reward) * grad
+        prev_reward, (reward, data) = reward, sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
 
     return agent
 
@@ -87,7 +76,7 @@ def sample_rollout(agent: Agent, NUM_ROLLOUTS: int, HORIZON: int) \
     a tuple (avg reward, List(state, action))
     """
 
-    env = gym.make('CartPole-v1')
+    env = gym.make('CartPole-v0')
 
     cumulative_reward = 0
     state_action = []
@@ -111,18 +100,16 @@ def reward(agent: Agent) -> int:
     """Returns the cumulative reward gained by <agent> in one episode in the
     training environment.
     """
-    env = gym.make('CartPole-v1')
+    env = gym.make('CartPole-v0')
     observation = env.reset()
 
     cumulative_reward = 0
-    t = 0
     while True:
         action = agent.get_action(observation)
         observation, reward, done, info = env.step(action)
         cumulative_reward += reward
         if done:
             break
-        t += 1
 
     return cumulative_reward
 
@@ -138,7 +125,7 @@ def render(agent: Agent) -> None:
     """Renders <agent> interacting with <env> to the screen.
     """
 
-    env = gym.make('CartPole-v1')
+    env = gym.make('CartPole-v0')
     observation = env.reset()
 
     t = 0
