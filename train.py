@@ -50,8 +50,8 @@ def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float, MAX_REWARD: int)\
         t += 1
     return agent, q
 
-def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
-                                                            -> StochasticAgent:
+def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)
+                            -> Tuple[StochasticAgent, Deque[Tuple[int, float]]]:
     """Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
     Hyperparameters:
@@ -61,8 +61,11 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
     MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
     agent = StochasticAgent()
+    q = deque()
+    t = 0
     reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
     while reward < MAX_REWARD:
+        q.append((t, reward))
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
@@ -72,8 +75,9 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
 
         agent.weights += ALPHA * reward * grad
         reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
+        t += 1
 
-    return agent
+    return agent, q
 
 def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
                                                             -> StochasticAgent:
@@ -86,9 +90,12 @@ def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: floa
     MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
     agent = StochasticAgent()
+    q = deque()
+    t = 0
     prev_reward = 0
     reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
     while reward < MAX_REWARD:
+        q.append((t, reward))
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
@@ -97,9 +104,11 @@ def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: floa
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
         agent.weights += ALPHA * (reward - prev_reward) * grad
-        prev_reward, (reward, data) = reward, sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
+        prev_reward, (reward, data) = reward, sample_rollout(agent,
+                                                        NUM_ROLLOUTS, HORIZON)
+        t += 1
 
-    return agent
+    return agent, q
 
 def sample_rollout(agent: Agent, NUM_ROLLOUTS: int, HORIZON: int) \
                                 -> Tuple[float, List[Tuple[np.ndarray, int]]]:
