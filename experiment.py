@@ -20,6 +20,21 @@ def random_trial_length():
     print(results)
     np.savetxt("results/random_trial_length.csv", results)
 
+def hill_climb_trial_length():
+    """Comparing trial lengths to convergence of "hill climbing" algorithm.
+    """
+    vals = [3, 5, 10, 25, 50, 100]
+    with open("results/hill_climb_trial_length.csv", "w", newline = '') as csvfile:
+        writer = csv.writer(csvfile, delimiter = ' ', quotechar = '|',
+                                                    quoting=csv.QUOTE_MINIMAL)
+        for i in range(len(vals)):
+            trial_length = vals[i]
+            writer.writerow(str(trial_length))
+            for j in range(10):
+                print(i, j)
+                agent, _ = train.hill_climb(trial_length, 0, 1, 200)
+                writer.writerow(str(train.avg_reward(agent, 100)))
+
 def hill_climb_std_dev():
     """Comparing std_dev to rate of convergence of "hill climbing" algorithm.
     """
