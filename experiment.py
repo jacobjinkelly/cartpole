@@ -44,10 +44,10 @@ def hill_climb_std_dev():
                                                     quoting = csv.QUOTE_MINIMAL)
         for i in range(len(vals)):
             std_dev = vals[i]
-            print(std_dev)
             writer.writerow([str(std_dev)])
             for j in range(10):
-                agent, q = train.hill_climb(3, 0, std_dev, 200)
+                print(std_dev, j)
+                agent, q = train.hill_climb(5, 0, std_dev, 200)
                 while True:
                     try:
                         t, reward = q.popleft()
