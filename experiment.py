@@ -36,7 +36,7 @@ def hill_climb_trial_length():
                 writer.writerow([str(train.avg_reward(agent, 100))])
 
 def hill_climb_std_dev():
-    """Comparing std_dev to rate of convergence of "hill climbing" algorithm.
+    """Tuning std_dev hyperparameter of "hill climbing" algorithm.
     """
     vals = [0.1, 0.3, 1]
     with open("results/hill_climb_std_dev.csv", "w", newline = '') as csvfile:
@@ -55,3 +55,7 @@ def hill_climb_std_dev():
                     except IndexError :
                         break
                 writer.writerow([str(train.avg_reward(agent, 100))])
+
+def reinforce_alpha():
+    """Tuning step size of reinforce algorithm.
+    """
