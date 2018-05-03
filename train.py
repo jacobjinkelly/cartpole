@@ -41,10 +41,10 @@ def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float, MAX_REWARD: int)\
     reward = avg_reward(agent, NUM_ROLLOUTS)
     while (reward < MAX_REWARD):
         q.append((t, reward))
-        pertub = STD_DEV * np.random.randn(4) + MEAN
-        agent.set_weights(agent.weights + pertub)
+        perturb = STD_DEV * np.random.randn(4) + MEAN
+        agent.weights += perturb)
         if (avg_reward(agent, NUM_ROLLOUTS) <= reward):
-            agent.set_weights(agent.weights - pertub)
+            agent.weights -= perturb
         else:
             reward = avg_reward(agent, NUM_ROLLOUTS)
         t += 1
