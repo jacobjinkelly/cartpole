@@ -61,6 +61,31 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
     MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
     agent = StochasticAgent()
+    reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
+    while reward < MAX_REWARD:
+        grad = np.zeros(4)
+        for i in range(len(data)):
+            state, action = data[i]
+            z = np.dot(agent.weights, state) # activation
+            sigmoid = expit(z)
+            grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
+
+        agent.weights += ALPHA * reward * grad
+        reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
+
+    return agent
+
+def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
+                                                            -> StochasticAgent:
+    """Trains an agent with a stochastic policy (<agent>) using the standard
+    REINFORCE policy gradient algorithm.
+    Hyperparameters:
+    ALPHA: step size
+    NUM_ROLLOUTS: number of rollouts to sample
+    HORIZON: time horizon for rollout
+    MAX_REWARD: train the agent until it achieves <MAX_REWARD>
+    """
+    agent = StochasticAgent()
     prev_reward = 0
     reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
     while reward < MAX_REWARD:
