@@ -26,29 +26,32 @@ def hill_climb_trial_length():
     vals = [3, 5, 10, 25, 50, 100]
     with open("results/hill_climb_trial_length.csv", "w", newline = '') as csvfile:
         writer = csv.writer(csvfile, delimiter = ' ', quotechar = '|',
-                                                    quoting=csv.QUOTE_MINIMAL)
+                                                    quoting = csv.QUOTE_MINIMAL)
         for i in range(len(vals)):
             trial_length = vals[i]
-            writer.writerow(str(trial_length))
+            writer.writerow([str(trial_length)])
             for j in range(10):
                 print(i, j)
                 agent, _ = train.hill_climb(trial_length, 0, 1, 200)
-                writer.writerow(str(train.avg_reward(agent, 100)))
+                writer.writerow([str(train.avg_reward(agent, 100))])
 
 def hill_climb_std_dev():
     """Comparing std_dev to rate of convergence of "hill climbing" algorithm.
     """
-    vals = [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1]
+    vals = [0.1, 0.3, 1]
     with open("results/hill_climb_std_dev.csv", "w", newline = '') as csvfile:
         writer = csv.writer(csvfile, delimiter = ' ', quotechar = '|',
-                                                    quoting=csv.QUOTE_MINIMAL)
+                                                    quoting = csv.QUOTE_MINIMAL)
         for i in range(len(vals)):
-            std_dev = 1
-            writer.writerow(str(std_dev))
-            _, q = train.hill_climb(3, 0, std_dev, 200)
-            while True:
-                try:
-                    t, reward = q.popleft()
-                    writer.writerow((str(t), str(reward)))
-                except IndexError :
-                    break
+            std_dev = vals[i]
+            print(std_dev)
+            writer.writerow([str(std_dev)])
+            for j in range(10):
+                agent, q = train.hill_climb(3, 0, std_dev, 200)
+                while True:
+                    try:
+                        t, reward = q.popleft()
+                        writer.writerow((str(t), str(reward)))
+                    except IndexError :
+                        break
+                writer.writerow([str(train.avg_reward(agent, 100))])
