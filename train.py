@@ -42,7 +42,7 @@ def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float, MAX_REWARD: int)\
     while (reward < MAX_REWARD):
         q.append((t, reward))
         perturb = STD_DEV * np.random.randn(4) + MEAN
-        agent.weights += perturb)
+        agent.weights += perturb
         if (avg_reward(agent, NUM_ROLLOUTS) <= reward):
             agent.weights -= perturb
         else:
@@ -50,7 +50,7 @@ def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float, MAX_REWARD: int)\
         t += 1
     return agent, q
 
-def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)
+def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
                             -> Tuple[StochasticAgent, Deque[Tuple[int, float]]]:
     """Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
