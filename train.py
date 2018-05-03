@@ -6,7 +6,8 @@ from agent import Agent, StochasticAgent
 import gym
 import numpy as np
 from scipy.special import expit
-from typing import Tuple, List
+from typing import Tuple, List, Deque
+from collections import deque
 
 def random(POPULATION: int, NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float) \
                                                                     -> Agent:
@@ -24,8 +25,8 @@ def random(POPULATION: int, NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float) \
             max_reward = reward
     return best_agent
 
-def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float,
-                                                    MAX_REWARD: int) -> Agent:
+def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float, MAX_REWARD: int)\
+                        -> Tuple[Agent, Deque[Tuple[int, float]]]:
     """Initialize an agent randomly, and randomly pertube the weights. If the
     random pertubation achieves better performance, update the weights.
     Hyperparameters:
@@ -35,15 +36,19 @@ def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float,
     MAX_REWARD: train the agent until it achieves <MAX_REWARD>
     """
     agent = Agent()
+    q = deque()
+    t = 0
     reward = avg_reward(agent, NUM_ROLLOUTS)
     while (reward < MAX_REWARD):
+        q.append((t, reward))
         pertub = STD_DEV * np.random.randn(4) + MEAN
         agent.set_weights(agent.weights + pertub)
         if (avg_reward(agent, NUM_ROLLOUTS) <= reward):
             agent.set_weights(agent.weights - pertub)
         else:
             reward = avg_reward(agent, NUM_ROLLOUTS)
-    return agent
+        t += 1
+    return agent, q
 
 def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
                                                             -> StochasticAgent:
