@@ -78,6 +78,7 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
         t += 1
         if t > 10000:
             q.append((t, -1))
+            break
 
     return agent, q
 
@@ -111,6 +112,7 @@ def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: floa
         t += 1
         if t > 10000:
             q.append((t, -1))
+            break
 
     return agent, q
 
