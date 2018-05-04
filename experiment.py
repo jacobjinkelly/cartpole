@@ -59,3 +59,20 @@ def hill_climb_std_dev():
 def reinforce_alpha():
     """Tuning step size of reinforce algorithm.
     """
+    vals = [0.0001, 0.001, 0.01, 0.1]
+    with open("results/reinforce_alpha.csv", "w", newline = '') as csvfile:
+        writer = csv.writer(csvfile, delimiter = ' ', quotechar = '|',
+                                                    quoting = csv.QUOTE_MINIMAL)
+        for i in range(len(vals)):
+            alpha = vals[i]
+            writer.writerow([str(alpha)])
+            for j in range(1):
+                print(alpha, j)
+                agent, q = train.reinforce(alpha, 5, 200, 200)
+                while True:
+                    try:
+                        t, reward = q.popleft()
+                        writer.writerow((str(t), str(reward)))
+                    except IndexError :
+                        break
+                writer.writerow([str(train.avg_reward(agent, 100))])
