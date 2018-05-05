@@ -76,7 +76,7 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
         agent.weights += ALPHA * reward * grad
         reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
         t += 1
-        if t > 10000:
+        if t > 1000:
             q.append((t, -1))
             break
 
@@ -110,7 +110,7 @@ def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: floa
         prev_reward, (reward, data) = reward, sample_rollout(agent,
                                                         NUM_ROLLOUTS, HORIZON)
         t += 1
-        if t > 10000:
+        if t > 1000:
             q.append((t, -1))
             break
 
