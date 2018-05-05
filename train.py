@@ -82,8 +82,8 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
 
     return agent, q
 
-def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
-                                                            -> StochasticAgent:
+def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int,
+                                        MAX_REWARD: float) -> StochasticAgent:
     """Trains an agent with a stochastic policy (<agent>) using modified
     (temporal difference) REINFORCE policy gradient algorithm.
     Hyperparameters:
