@@ -5,6 +5,10 @@ This module contains the agent classes.
 import numpy as np
 from scipy.special import expit
 
+from utils import np_seed
+
+np.random.seed(np_seed)
+
 
 class Agent:
     """
@@ -16,7 +20,7 @@ class Agent:
     """
     weights: np.ndarray
 
-    def __init__(self, mean: float = 0, std_dev: float = 1) -> None:
+    def __init__(self, mean: float=0, std_dev: float=1) -> None:
         """
         Initalize weights over Gaussian with <mean> and <std_dev>.
         """

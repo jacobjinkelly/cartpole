@@ -9,22 +9,24 @@ import numpy as np
 from scipy.special import expit
 
 from agent import Agent, StochasticAgent
+from utils import np_seed
+
+np.random.seed(np_seed)
 
 
-def random(population: int, num_rollouts: int, mean: float, std_dev: float) -> Agent:
+def random(population: int, num_trials: int, mean: float, std_dev: float) -> Agent:
     """
     Initialize <population> agents randomly, picks the best one.
     The 'best' agent corresponds to the agent with the highest average reward
-    over <num_rollouts> trials.
+    over <num_trials> trials.
     """
     max_reward = 0
     best_agent = None
     for _ in range(population):
-        agent = Agent()
-        reward = get_avg_reward(agent, num_rollouts)
+        agent = Agent(mean=mean, std_dev=std_dev)
+        reward = get_avg_reward(agent, num_trials)
         if max_reward < reward:
-            best_agent = agent
-            max_reward = reward
+            best_agent, max_reward = agent, reward
     return best_agent
 
 
