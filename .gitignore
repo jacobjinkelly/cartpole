@@ -1,2 +1,8 @@
+# Compiled Python #
 __pycache__/
+
+# PyCharm Project Files #
+.idea/
+
+# Data #
 results/
