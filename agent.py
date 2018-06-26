@@ -4,6 +4,7 @@
 import numpy as np
 from scipy.special import expit
 
+
 class Agent:
     """An agent in the environment.
 
@@ -13,10 +14,10 @@ class Agent:
     """
     weights: np.ndarray
 
-    def __init__(self, MEAN: float = 0, STD_DEV: float = 1) -> None:
-        """Initalize weights over Gaussian with <MEAN> and <STD_DEV>.
+    def __init__(self, mean: float = 0, std_dev: float = 1) -> None:
+        """Initalize weights over Gaussian with <mean> and <std_dev>.
         """
-        self.weights = STD_DEV * np.random.randn(4) + MEAN
+        self.weights = std_dev * np.random.randn(4) + mean
 
     def get_action(self, obs: np.ndarray) -> int:
         """Get the agent's next action, given an observation <obs>.
@@ -31,10 +32,13 @@ class Agent:
         """
         self.weights = weights
 
+
 class StochasticAgent(Agent):
     """An agent with a stochastic policy in the environment.
     """
 
     def get_action(self, obs: np.ndarray) -> int:
+        """Sample from the agent's distribution of actions, given an observation <obs>.
+        """
         prob = expit(np.dot(self.weights, obs))
-        return np.random.choice([0, 1], p = [1 - prob, prob])
+        return np.random.choice([0, 1], p=[1 - prob, prob])

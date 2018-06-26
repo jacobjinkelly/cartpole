@@ -2,12 +2,10 @@
 """
 
 import gym
-from agent import Agent, StochasticAgent
-import train
 
-gym.logger.set_level(40) # set level to ERROR, i.e. so doesn't log WARN level
-# (in particular so it doesn't WARN about automatic detecting of dtype)
+import experiment
 
-agent = train.reinforce(StochasticAgent())
+# set level to ERROR so doesn't log WARN level (in particular so it doesn't WARN about automatic detecting of dtype)
+gym.logger.set_level(40)
 
-print(train.avg_reward(agent))
+experiment.reinforce_td_alpha()

@@ -1,80 +1,83 @@
 """This module contains methods for training agents.
 """
 
-from __future__ import division # force float division
-from agent import Agent, StochasticAgent
+from collections import deque
+from typing import Tuple, List, Deque
+
 import gym
 import numpy as np
 from scipy.special import expit
-from typing import Tuple, List, Deque
-from collections import deque
 
-def random(POPULATION: int, NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float) \
-                                                                    -> Agent:
-    """Initialize <POPULATION> agents randomly, picks the best one.
+from agent import Agent, StochasticAgent
+
+
+def random(population: int, num_rollouts: int, mean: float, std_dev: float) -> Agent:
+    """Initialize <population> agents randomly, picks the best one.
     The 'best' agent corresponds to the agent with the highest average reward
-    over <NUM_ROLLOUTS> trials.
+    over <num_rollouts> trials.
     """
     max_reward = 0
     best_agent = None
-    for _ in range(POPULATION):
+    for _ in range(population):
         agent = Agent()
-        reward = avg_reward(agent, NUM_ROLLOUTS)
-        if (max_reward < reward):
+        reward = get_avg_reward(agent, num_rollouts)
+        if max_reward < reward:
             best_agent = agent
             max_reward = reward
     return best_agent
 
-def hill_climb(NUM_ROLLOUTS: int, MEAN: float, STD_DEV: float, MAX_REWARD: int)\
-                        -> Tuple[Agent, Deque[Tuple[int, float]]]:
+
+def hill_climb(num_rollouts: int, mean: float, std_dev: float, max_reward: int) \
+        -> Tuple[Agent, Deque[Tuple[int, float]]]:
     """Initialize an agent randomly, and randomly pertube the weights. If the
     random pertubation achieves better performance, update the weights.
     Hyperparameters:
-    NUM_ROLLOUTS: number of trials to sample for avg_reward of agent.
-    MEAN: mean of gaussian which weight pertubations are sampled from.
-    STD_DEV: std dev of gaussian which weight pertubations are sampled from.
-    MAX_REWARD: train the agent until it achieves <MAX_REWARD>
+    num_rollouts: number of trials to sample for avg_reward of agent.
+    mean: mean of gaussian which weight pertubations are sampled from.
+    std_dev: std dev of gaussian which weight pertubations are sampled from.
+    max_reward: train the agent until it achieves <max_reward>
     """
     agent = Agent()
     q = deque()
     t = 0
-    reward = avg_reward(agent, NUM_ROLLOUTS)
-    while (reward < MAX_REWARD):
+    reward = get_avg_reward(agent, num_rollouts)
+    while reward < max_reward:
         q.append((t, reward))
-        perturb = STD_DEV * np.random.randn(4) + MEAN
+        perturb = std_dev * np.random.randn(4) + mean
         agent.weights += perturb
-        if (avg_reward(agent, NUM_ROLLOUTS) <= reward):
+        if get_avg_reward(agent, num_rollouts) <= reward:
             agent.weights -= perturb
         else:
-            reward = avg_reward(agent, NUM_ROLLOUTS)
+            reward = get_avg_reward(agent, num_rollouts)
         t += 1
     return agent, q
 
-def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
-                            -> Tuple[StochasticAgent, Deque[Tuple[int, float]]]:
+
+def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) \
+        -> Tuple[StochasticAgent, Deque[Tuple[int, float]]]:
     """Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
     Hyperparameters:
-    ALPHA: step size
-    NUM_ROLLOUTS: number of rollouts to sample
-    HORIZON: time horizon for rollout
-    MAX_REWARD: train the agent until it achieves <MAX_REWARD>
+    alpha: step size
+    num_rollouts: number of rollouts to sample
+    horizon: time horizon for rollout
+    max_reward: train the agent until it achieves <max_reward>
     """
     agent = StochasticAgent()
     q = deque()
     t = 0
-    reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
-    while reward < MAX_REWARD:
+    reward, data = sample_rollout(agent, num_rollouts, horizon)
+    while reward < max_reward:
         q.append((t, reward))
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
-            z = np.dot(agent.weights, state) # activation
+            z = np.dot(agent.weights, state)  # activation
             sigmoid = expit(z)
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
-        agent.weights += ALPHA * reward * grad
-        reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
+        agent.weights += alpha * reward * grad
+        reward, data = sample_rollout(agent, num_rollouts, horizon)
         t += 1
         if t > 1000:
             q.append((t, -1))
@@ -82,33 +85,33 @@ def reinforce(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int, MAX_REWARD: float)\
 
     return agent, q
 
-def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int,
-                                        MAX_REWARD: float) -> StochasticAgent:
+
+def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: float) -> Tuple[StochasticAgent, deque]:
     """Trains an agent with a stochastic policy (<agent>) using modified
     (temporal difference) REINFORCE policy gradient algorithm.
     Hyperparameters:
-    ALPHA: step size
-    NUM_ROLLOUTS: number of rollouts to sample
-    HORIZON: time horizon for rollout
-    MAX_REWARD: train the agent until it achieves <MAX_REWARD>
+    alpha: step size
+    num_rollouts: number of rollouts to sample
+    horizon: time horizon for rollout
+    max_reward: train the agent until it achieves <max_reward>
     """
     agent = StochasticAgent()
     q = deque()
     t = 0
     prev_reward = 0
-    reward, data = sample_rollout(agent, NUM_ROLLOUTS, HORIZON)
-    while reward < MAX_REWARD:
+    reward, data = sample_rollout(agent, num_rollouts, horizon)
+    while reward < max_reward:
         q.append((t, reward))
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
-            z = np.dot(agent.weights, state) # activation
+            z = np.dot(agent.weights, state)  # activation
             sigmoid = expit(z)
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
-        agent.weights += ALPHA * (reward - prev_reward) * grad
+        agent.weights += alpha * (reward - prev_reward) * grad
         prev_reward, (reward, data) = reward, sample_rollout(agent,
-                                                        NUM_ROLLOUTS, HORIZON)
+                                                             num_rollouts, horizon)
         t += 1
         if t > 1000:
             q.append((t, -1))
@@ -116,9 +119,10 @@ def reinforce_td(ALPHA: float, NUM_ROLLOUTS: int, HORIZON: int,
 
     return agent, q
 
-def sample_rollout(agent: Agent, NUM_ROLLOUTS: int, HORIZON: int) \
-                                -> Tuple[float, List[Tuple[np.ndarray, int]]]:
-    """Samples <NUM_ROLLOUTS> rollouts with time horizon <HORIZON>, and returns
+
+def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) \
+        -> Tuple[float, List[Tuple[np.ndarray, int]]]:
+    """Samples <num_rollouts> rollouts with time horizon <horizon>, and returns
     a tuple (avg reward, List(state, action))
     """
 
@@ -127,22 +131,23 @@ def sample_rollout(agent: Agent, NUM_ROLLOUTS: int, HORIZON: int) \
     cumulative_reward = 0
     state_action = []
 
-    for i in range(NUM_ROLLOUTS):
+    for i in range(num_rollouts):
         t = 0
         done = False
 
         observation = env.reset()
 
-        while (t < HORIZON) and not done:
+        while (t < horizon) and not done:
             action = agent.get_action(observation)
             state_action.append((observation, action))
             observation, reward, done, info = env.step(action)
             cumulative_reward += reward
             t += 1
 
-    return (cumulative_reward / NUM_ROLLOUTS, state_action)
+    return (cumulative_reward / num_rollouts, state_action)
 
-def reward(agent: Agent) -> int:
+
+def get_reward(agent: Agent) -> int:
     """Returns the cumulative reward gained by <agent> in one episode in the
     training environment.
     """
@@ -159,19 +164,21 @@ def reward(agent: Agent) -> int:
 
     return cumulative_reward
 
-def avg_reward(agent: Agent, num_trials: int) -> float:
+
+def get_avg_reward(agent: Agent, num_trials: int) -> float:
     """Returns the average cumulative reward over <num_trials> trials.
     """
-    sum = 0
+    total = 0
     for _ in range(num_trials):
-        sum += reward(agent)
-    return sum / num_trials
+        total += get_reward(agent)
+    return total / num_trials
+
 
 def render(agent: Agent) -> None:
     """Renders <agent> interacting with <env> to the screen.
     """
 
-    env = gym.make('CartPole-v0')
+    env = gym.make("CartPole-v0")
     observation = env.reset()
 
     t = 0
@@ -180,6 +187,6 @@ def render(agent: Agent) -> None:
         action = agent.get_action(observation)
         observation, reward, done, info = env.step(action)
         if done:
-            print("Episode finished after {} timesteps".format(t+1))
+            print("Episode finished after {} timesteps".format(t + 1))
             break
         t += 1
