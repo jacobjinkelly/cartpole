@@ -12,7 +12,8 @@ from agent import Agent, StochasticAgent
 
 
 def random(population: int, num_rollouts: int, mean: float, std_dev: float) -> Agent:
-    """Initialize <population> agents randomly, picks the best one.
+    """
+    Initialize <population> agents randomly, picks the best one.
     The 'best' agent corresponds to the agent with the highest average reward
     over <num_rollouts> trials.
     """
@@ -29,7 +30,8 @@ def random(population: int, num_rollouts: int, mean: float, std_dev: float) -> A
 
 def hill_climb(num_rollouts: int, mean: float, std_dev: float, max_reward: int) \
         -> Tuple[Agent, Deque[Tuple[int, float]]]:
-    """Initialize an agent randomly, and randomly pertube the weights. If the
+    """
+    Initialize an agent randomly, and randomly pertube the weights. If the
     random pertubation achieves better performance, update the weights.
     Hyperparameters:
     num_rollouts: number of trials to sample for avg_reward of agent.
@@ -55,7 +57,8 @@ def hill_climb(num_rollouts: int, mean: float, std_dev: float, max_reward: int) 
 
 def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) \
         -> Tuple[StochasticAgent, Deque[Tuple[int, float]]]:
-    """Trains an agent with a stochastic policy (<agent>) using the standard
+    """
+    Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
     Hyperparameters:
     alpha: step size
@@ -87,7 +90,8 @@ def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) 
 
 
 def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: float) -> Tuple[StochasticAgent, deque]:
-    """Trains an agent with a stochastic policy (<agent>) using modified
+    """
+    Trains an agent with a stochastic policy (<agent>) using modified
     (temporal difference) REINFORCE policy gradient algorithm.
     Hyperparameters:
     alpha: step size
@@ -122,7 +126,8 @@ def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: floa
 
 def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) \
         -> Tuple[float, List[Tuple[np.ndarray, int]]]:
-    """Samples <num_rollouts> rollouts with time horizon <horizon>, and returns
+    """
+    Samples <num_rollouts> rollouts with time horizon <horizon>, and returns
     a tuple (avg reward, List(state, action))
     """
 
@@ -148,7 +153,8 @@ def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) \
 
 
 def get_reward(agent: Agent) -> int:
-    """Returns the cumulative reward gained by <agent> in one episode in the
+    """
+    Returns the cumulative reward gained by <agent> in one episode in the
     training environment.
     """
     env = gym.make('CartPole-v0')
@@ -166,7 +172,8 @@ def get_reward(agent: Agent) -> int:
 
 
 def get_avg_reward(agent: Agent, num_trials: int) -> float:
-    """Returns the average cumulative reward over <num_trials> trials.
+    """
+    Returns the average cumulative reward over <num_trials> trials.
     """
     total = 0
     for _ in range(num_trials):
@@ -175,7 +182,8 @@ def get_avg_reward(agent: Agent, num_trials: int) -> float:
 
 
 def render(agent: Agent) -> None:
-    """Renders <agent> interacting with <env> to the screen.
+    """
+    Renders <agent> interacting with <env> to the screen.
     """
 
     env = gym.make("CartPole-v0")

@@ -1,4 +1,5 @@
-"""This module records statistics of the agents' performance.
+"""
+This module records statistics of the agents' performance.
 """
 
 import csv
@@ -9,7 +10,8 @@ import train
 
 
 def random_trial_length():
-    """Comparing trial lengths to likelihood of "random" training algorithm
+    """
+    Comparing trial lengths to likelihood of "random" training algorithm
     finding agent which solves environment.
     """
     vals = [1, 2, 3]
@@ -24,7 +26,8 @@ def random_trial_length():
 
 
 def hill_climb_trial_length():
-    """Comparing trial lengths to convergence of "hill climbing" algorithm.
+    """
+    Comparing trial lengths to convergence of "hill climbing" algorithm.
     """
     vals = [3, 5, 10, 25, 50, 100]
     with open("results/hill_climb_trial_length.csv", "w", newline='') as csvfile:
@@ -40,7 +43,8 @@ def hill_climb_trial_length():
 
 
 def hill_climb_std_dev():
-    """Tuning std_dev hyperparameter of "hill climbing" algorithm.
+    """
+    Tuning std_dev hyperparameter of "hill climbing" algorithm.
     """
     vals = [0.1, 0.3, 1]
     with open("results/hill_climb_std_dev.csv", "w", newline='') as csvfile:
@@ -62,7 +66,8 @@ def hill_climb_std_dev():
 
 
 def reinforce_alpha():
-    """Tuning step size of reinforce algorithm.
+    """
+    Tuning step size of reinforce algorithm.
     """
     vals = [0.0001, 0.001, 0.01, 0.1]
     with open("results/reinforce_alpha.csv", "w", newline='') as csvfile:
@@ -84,7 +89,8 @@ def reinforce_alpha():
 
 
 def reinforce_rollouts():
-    """Tune number of rollouts.
+    """
+    Tune number of rollouts.
     """
     vals = [10, 25, 50, 100]
     with open("results/reinforce_rollouts.csv", "w", newline='') as csvfile:
@@ -106,7 +112,8 @@ def reinforce_rollouts():
 
 
 def reinforce_td_alpha():
-    """Tuning step size of reinforce algorithm.
+    """
+    Tuning step size of reinforce algorithm.
     """
     vals = [0.001, 0.003, 0.01, 0.03]
     with open("results/reinforce_td_alpha.csv", "w", newline='') as csvfile:
@@ -128,7 +135,8 @@ def reinforce_td_alpha():
 
 
 def reinforce_td_rollouts():
-    """Tune number of rollouts.
+    """
+    Tune number of rollouts.
     """
     vals = [10, 25, 50, 100]
     with open("results/reinforce_td_rollouts.csv", "w", newline='') as csvfile:

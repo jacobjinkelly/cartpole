@@ -1,4 +1,5 @@
-"""The main class, for training and testing agents on the environment.
+"""
+The main class, for training and testing agents on the environment.
 """
 
 import gym
