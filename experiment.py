@@ -4,25 +4,27 @@ This module records statistics of the agents' performance.
 
 import csv
 
-import numpy as np
-
 import train
+from visualize import show_plot
 
 
-def random_trial_length():
+def random_num_trials(nums_trials, num_samples=10):
     """
-    Comparing trial lengths to likelihood of "random" training algorithm
+    Comparing number of trials to likelihood of "random" training algorithm
     finding agent which solves environment.
     """
-    vals = [1, 2, 3]
-    results = np.zeros((3, 10))
-    for i in range(3):
-        total = 0
-        for j in range(10):
-            print(i, j)
-            results[i][j] = train.get_avg_reward(train.random(10000, vals[i], 0, 1), 100)
+    results = []
+    for num_trials in nums_trials:
+        for i in range(num_samples):
+            print("num_trials: %d, sample: %d" % (num_trials, i))
+            results.append((num_trials, train.get_avg_reward(agent=train.random(population=10000,
+                                                                                num_trials=num_trials,
+                                                                                mean=0,
+                                                                                std_dev=1),
+                                                             num_trials=100)))
     print(results)
-    np.savetxt("results/random_trial_length.csv", results)
+    show_plot(results, save=True, name="random_trial_length", xlabel="Number of Trials",
+              ylabel="Avg. Reward over %s samples" % num_samples)
 
 
 def hill_climb_trial_length():
