@@ -54,20 +54,20 @@ def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) ->
     return agent, trajectory
 
 
-def reinforce(lr: float, num_rollouts: int, horizon: int, max_reward: float) \
+def reinforce(lr: float, num_trials: int, horizon: int, max_reward: float) \
         -> Tuple[StochasticAgent, List[Tuple[int, float]]]:
     """
     Trains an agent with a stochastic policy (<agent>) using the standard REINFORCE policy gradient algorithm.
     Hyperparameters:
     lr: learning rate
-    num_rollouts: number of rollouts to sample
-    horizon: time horizon for rollout
+    num_trials: number of trials to sample
+    horizon: time horizon for each trial
     max_reward: train the agent until it achieves <max_reward>
     """
     agent = StochasticAgent()
     trajectory = []
     t = 0
-    reward, data = sample_rollouts(agent, num_rollouts, horizon)
+    reward, data = sample_trials(agent, num_trials, horizon)
     while reward < max_reward:
         trajectory.append((t, reward))
         grad = np.zeros(4)
@@ -78,7 +78,7 @@ def reinforce(lr: float, num_rollouts: int, horizon: int, max_reward: float) \
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
         agent.weights += lr * reward * grad
-        reward, data = sample_rollouts(agent, num_rollouts, horizon)
+        reward, data = sample_trials(agent, num_trials, horizon)
         t += 1
         if t > 1000:
             trajectory.append((t, -1))
@@ -87,16 +87,16 @@ def reinforce(lr: float, num_rollouts: int, horizon: int, max_reward: float) \
     return agent, trajectory
 
 
-def sample_rollouts(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[float, List[Tuple[np.ndarray, int]]]:
+def sample_trials(agent: Agent, num_trials: int, horizon: int) -> Tuple[float, List[Tuple[np.ndarray, int]]]:
     """
-    Samples <num_rollouts> rollouts with time horizon <horizon>, and returns a tuple (avg reward, List(state, action))
+    Samples <num_trials> trials with time horizon <horizon>, and returns a tuple (avg reward, List(state, action))
     """
     env = gym.make('CartPole-v0')
 
     cumulative_reward = 0
     state_action = []
 
-    for i in range(num_rollouts):
+    for i in range(num_trials):
         t = 0
         done = False
 
@@ -109,7 +109,7 @@ def sample_rollouts(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[floa
             cumulative_reward += reward
             t += 1
 
-    return (cumulative_reward / num_rollouts, state_action)
+    return (cumulative_reward / num_trials, state_action)
 
 
 def get_reward(agent: Agent) -> int:

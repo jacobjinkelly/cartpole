@@ -8,7 +8,7 @@ import train
 from visualize import show_plot
 
 
-def random_num_trials(nums_trials: List[int], num_samples: int):
+def random_trials(nums_trials: List[int], num_samples: int):
     """
     Comparing number of trials to performance of "random" training algorithm at finding agent which solves environment.
     """
@@ -25,7 +25,7 @@ def random_num_trials(nums_trials: List[int], num_samples: int):
               ylabel="Avg. Reward over 100 trials")
 
 
-def hill_climb_trial_length(nums_trials: List[int], num_samples: int):
+def hill_climb_trials(nums_trials: List[int], num_samples: int):
     """
     Comparing number of trials to performance of hill climbing training algorithm at finding agent which solves
     environment.
@@ -58,6 +58,26 @@ def hill_climb_std_dev(std_devs: List[int], num_samples: int):
                                                  max_reward=200)
             results_trajectories[std_dev].append(trajectory)
             results_std_dev.append((std_dev, train.get_avg_reward(agent=agent, num_trials=100)))
+    show_plot(results_std_dev, save=True, name="hill_climb_std_dev", xlabel="Standard Deviation",
+              ylabel="Avg. Reward over 100 trials")
+
+
+def reinforce_trials(nums_trials: List[int], num_samples: int):
+    """
+    Comparing number of trials to performance of REINFORCE algorithm at finding agent which solves environment.
+    """
+    results_trials, results_trajectories = [], {num_trials: [] for num_trials in nums_trials}
+    for num_trials in nums_trials:
+        for i in range(num_samples):
+            print("num_trials: %d, sample: %d" % (num_trials, i + 1))
+            agent, trajectory = train.reinforce(lr=0.0001,
+                                                num_trials=num_trials,
+                                                horizon=200,
+                                                max_reward=200)
+            results_trajectories[num_trials].append(trajectory)
+            results_trials.append((num_trials, train.get_avg_reward(agent=agent, num_trials=100)))
+    show_plot(results_trials, save=True, name="reinforce_trials", xlabel="Number of Trials",
+              ylabel="Avg. Reward over 100 trials")
 
 
 def reinforce_lr(lrs: List[float], num_samples: int):
@@ -69,24 +89,9 @@ def reinforce_lr(lrs: List[float], num_samples: int):
         for i in range(num_samples):
             print("learning rate: %s, sample: %d" % (lr, i + 1))
             agent, trajectory = train.reinforce(lr=lr,
-                                                num_rollouts=5,
+                                                num_trials=5,
                                                 horizon=200,
                                                 max_reward=200)
             results_trajectories[lr].append(trajectory)
             results_lr.append((lr, train.get_avg_reward(agent=agent, num_trials=100)))
-
-
-def reinforce_rollouts(nums_rollouts: List[int], num_samples: int):
-    """
-    Comparing number of rollouts to performance of REINFORCE algorithm at finding agent which solves environment.
-    """
-    results_rollouts, results_trajectories = [], {num_rollouts: [] for num_rollouts in nums_rollouts}
-    for num_rollouts in nums_rollouts:
-        for i in range(num_samples):
-            print("num_rollouts: %d, sample: %d" % (num_rollouts, i + 1))
-            agent, trajectory = train.reinforce(lr=0.0001,
-                                                num_rollouts=num_rollouts,
-                                                horizon=200,
-                                                max_reward=200)
-            results_trajectories[num_rollouts].append(trajectory)
-            results_rollouts.append((num_rollouts, train.get_avg_reward(agent=agent, num_trials=100)))
+    show_plot(results_lr, save=True, name="reinforce_lr", xlabel="Learning Rate", ylabel="Avg. Reward over 100 trials")

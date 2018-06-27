@@ -11,9 +11,14 @@ def get_config():
 
     parser = ArgumentParser()
 
-    parser.add_argument("--experiment", type=str, help="which experiment to run")
+    parser.add_argument("--experiment", type=str, required=True, help="which experiment to run")
+    parser.add_argument("--num_samples", type=int, required=True, help="number of samples to use for experiment")
     parser.add_argument("--np_seed", type=int, help="seed for np.random")
-    parser.add_argument("--trial_lengths", nargs="+", type=int, help="trial lengths to try")
+    parser.add_argument("--nums_trials", nargs="+", type=int, help=("numbers of trials to try (required for "
+                                                                    "{random, hill_climb, reinforce}_trials"))
+    parser.add_argument("--std_devs", nargs="+", type=int, help="standard deviations to try (required for "
+                                                                "hill_climb_std_dev)")
+    parser.add_argument("--lrs", nargs="+", type=int, help="learning rates to try (required for reinforce_lr")
 
     return parser.parse_known_args()
 
@@ -30,7 +35,22 @@ if __name__ == "__main__":
     # set level to ERROR so doesn't log WARN level (in particular so it doesn't WARN about automatic detecting of dtype)
     gym.logger.set_level(40)
 
-    if args.experiment == "random_num_trials":
-        experiment.random_num_trials(args.trial_lengths)
-    else:
-        print("Name of experiment not recognized.")
+    try:
+        if args.experiment == "random_trials":
+            experiment.random_trials(nums_trials=args.nums_trials,
+                                     num_samples=args.num_samples)
+        elif args.experiment == "hill_climb_trials":
+            experiment.hill_climb_trials(nums_trials=args.nums_trials,
+                                         num_samples=args.num_samples)
+        elif args.experiment == "hill_climb_std_dev":
+            experiment.hill_climb_std_dev(std_devs=args.std_devs,
+                                          num_samples=args.num_samples)
+        elif args.experiment == "reinforce_trials":
+            experiment.reinforce_trials(nums_trials=args.nums_trials,
+                                        num_samples=args.num_samples)
+        elif args.experiment == "reinforce_lr":
+            experiment.reinforce_lr(lrs=args.lrs,
+                                    num_samples=args.num_samples)
+
+    except AttributeError:
+        print("One of the required arguments was not passed in.")
