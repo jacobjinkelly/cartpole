@@ -1,8 +1,7 @@
 """This module contains methods for training agents.
 """
 
-from collections import deque
-from typing import Tuple, List, Deque
+from typing import Tuple, List
 
 import gym
 import numpy as np
@@ -30,35 +29,33 @@ def random(population: int, num_trials: int, mean: float, std_dev: float) -> Age
     return best_agent
 
 
-def hill_climb(num_rollouts: int, mean: float, std_dev: float, max_reward: int) \
-        -> Tuple[Agent, Deque[Tuple[int, float]]]:
+def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Tuple[Agent, List[Tuple[int, float]]]:
     """
     Initialize an agent randomly, and randomly pertube the weights. If the
     random pertubation achieves better performance, update the weights.
     Hyperparameters:
-    num_rollouts: number of trials to sample for avg_reward of agent.
+    num_trials: number of trials to sample for avg_reward of agent.
     mean: mean of gaussian which weight pertubations are sampled from.
     std_dev: std dev of gaussian which weight pertubations are sampled from.
     max_reward: train the agent until it achieves <max_reward>
     """
     agent = Agent()
-    q = deque()
-    t = 0
-    reward = get_avg_reward(agent, num_rollouts)
+    trajectory = []
+    t, reward = 0, get_avg_reward(agent, num_trials)
     while reward < max_reward:
-        q.append((t, reward))
+        trajectory.append((t, reward))
         perturb = std_dev * np.random.randn(4) + mean
         agent.weights += perturb
-        if get_avg_reward(agent, num_rollouts) <= reward:
+        if get_avg_reward(agent, num_trials) <= reward:
             agent.weights -= perturb
         else:
-            reward = get_avg_reward(agent, num_rollouts)
+            reward = get_avg_reward(agent, num_trials)
         t += 1
-    return agent, q
+    return agent, trajectory
 
 
 def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) \
-        -> Tuple[StochasticAgent, Deque[Tuple[int, float]]]:
+        -> Tuple[StochasticAgent, List[Tuple[int, float]]]:
     """
     Trains an agent with a stochastic policy (<agent>) using the standard
     REINFORCE policy gradient algorithm.
@@ -69,11 +66,11 @@ def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) 
     max_reward: train the agent until it achieves <max_reward>
     """
     agent = StochasticAgent()
-    q = deque()
+    trajectory = []
     t = 0
     reward, data = sample_rollout(agent, num_rollouts, horizon)
     while reward < max_reward:
-        q.append((t, reward))
+        trajectory.append((t, reward))
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
@@ -85,13 +82,14 @@ def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) 
         reward, data = sample_rollout(agent, num_rollouts, horizon)
         t += 1
         if t > 1000:
-            q.append((t, -1))
+            trajectory.append((t, -1))
             break
 
-    return agent, q
+    return agent, trajectory
 
 
-def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: float) -> Tuple[StochasticAgent, deque]:
+def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: float) \
+        -> Tuple[StochasticAgent, List[Tuple[int, float]]]:
     """
     Trains an agent with a stochastic policy (<agent>) using modified
     (temporal difference) REINFORCE policy gradient algorithm.
@@ -102,12 +100,11 @@ def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: floa
     max_reward: train the agent until it achieves <max_reward>
     """
     agent = StochasticAgent()
-    q = deque()
-    t = 0
-    prev_reward = 0
+    trajectory = []
+    t, prev_reward = 0, 0
     reward, data = sample_rollout(agent, num_rollouts, horizon)
     while reward < max_reward:
-        q.append((t, reward))
+        trajectory.append((t, reward))
         grad = np.zeros(4)
         for i in range(len(data)):
             state, action = data[i]
@@ -116,18 +113,16 @@ def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: floa
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
         agent.weights += alpha * (reward - prev_reward) * grad
-        prev_reward, (reward, data) = reward, sample_rollout(agent,
-                                                             num_rollouts, horizon)
+        prev_reward, (reward, data) = reward, sample_rollout(agent, num_rollouts, horizon)
         t += 1
         if t > 1000:
-            q.append((t, -1))
+            trajectory.append((t, -1))
             break
 
-    return agent, q
+    return agent, trajectory
 
 
-def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) \
-        -> Tuple[float, List[Tuple[np.ndarray, int]]]:
+def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[float, List[Tuple[np.ndarray, int]]]:
     """
     Samples <num_rollouts> rollouts with time horizon <horizon>, and returns
     a tuple (avg reward, List(state, action))
