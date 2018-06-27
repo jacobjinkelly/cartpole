@@ -31,8 +31,8 @@ def random(population: int, num_trials: int, mean: float, std_dev: float) -> Age
 
 def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Tuple[Agent, List[Tuple[int, float]]]:
     """
-    Initialize an agent randomly, and randomly pertube the weights. If the
-    random pertubation achieves better performance, update the weights.
+    Initialize an agent randomly, and randomly pertube the weights. If the random pertubation achieves better
+    performance, update the weights.
     Hyperparameters:
     num_trials: number of trials to sample for avg_reward of agent.
     mean: mean of gaussian which weight pertubations are sampled from.
@@ -54,13 +54,12 @@ def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) ->
     return agent, trajectory
 
 
-def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) \
+def reinforce(lr: float, num_rollouts: int, horizon: int, max_reward: float) \
         -> Tuple[StochasticAgent, List[Tuple[int, float]]]:
     """
-    Trains an agent with a stochastic policy (<agent>) using the standard
-    REINFORCE policy gradient algorithm.
+    Trains an agent with a stochastic policy (<agent>) using the standard REINFORCE policy gradient algorithm.
     Hyperparameters:
-    alpha: step size
+    lr: learning rate
     num_rollouts: number of rollouts to sample
     horizon: time horizon for rollout
     max_reward: train the agent until it achieves <max_reward>
@@ -68,18 +67,18 @@ def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) 
     agent = StochasticAgent()
     trajectory = []
     t = 0
-    reward, data = sample_rollout(agent, num_rollouts, horizon)
+    reward, data = sample_rollouts(agent, num_rollouts, horizon)
     while reward < max_reward:
         trajectory.append((t, reward))
         grad = np.zeros(4)
-        for i in range(len(data)):
-            state, action = data[i]
+        for datum in data:
+            state, action = datum
             z = np.dot(agent.weights, state)  # activation
             sigmoid = expit(z)
             grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
 
-        agent.weights += alpha * reward * grad
-        reward, data = sample_rollout(agent, num_rollouts, horizon)
+        agent.weights += lr * reward * grad
+        reward, data = sample_rollouts(agent, num_rollouts, horizon)
         t += 1
         if t > 1000:
             trajectory.append((t, -1))
@@ -88,12 +87,10 @@ def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) 
     return agent, trajectory
 
 
-def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[float, List[Tuple[np.ndarray, int]]]:
+def sample_rollouts(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[float, List[Tuple[np.ndarray, int]]]:
     """
-    Samples <num_rollouts> rollouts with time horizon <horizon>, and returns
-    a tuple (avg reward, List(state, action))
+    Samples <num_rollouts> rollouts with time horizon <horizon>, and returns a tuple (avg reward, List(state, action))
     """
-
     env = gym.make('CartPole-v0')
 
     cumulative_reward = 0
@@ -117,8 +114,7 @@ def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[float
 
 def get_reward(agent: Agent) -> int:
     """
-    Returns the cumulative reward gained by <agent> in one episode in the
-    training environment.
+    Returns the cumulative reward gained by <agent> in one episode in the training environment.
     """
     env = gym.make('CartPole-v0')
     observation = env.reset()
@@ -148,7 +144,6 @@ def render(agent: Agent) -> None:
     """
     Renders <agent> interacting with <env> to the screen.
     """
-
     env = gym.make("CartPole-v0")
     observation = env.reset()
 
