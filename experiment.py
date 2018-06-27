@@ -3,15 +3,15 @@ This module records statistics of the agents' performance.
 """
 
 import csv
+from typing import List
 
 import train
 from visualize import show_plot
 
 
-def random_num_trials(nums_trials, num_samples=10):
+def random_num_trials(nums_trials: List[int], num_samples: int):
     """
-    Comparing number of trials to likelihood of "random" training algorithm
-    finding agent which solves environment.
+    Comparing number of trials to performance of "random" training algorithm at finding agent which solves environment.
     """
     results = []
     for i in range(len(nums_trials)):
@@ -26,44 +26,38 @@ def random_num_trials(nums_trials, num_samples=10):
               ylabel="Avg. Reward over 100 trials")
 
 
-def hill_climb_trial_length():
+def hill_climb_trial_length(nums_trials: List[int], num_samples: int):
     """
-    Comparing trial lengths to convergence of "hill climbing" algorithm.
+    Comparing number of trials to performance of hill climbing training algorithm at finding agent which solves
+    environment.
     """
-    vals = [3, 5, 10, 25, 50, 100]
-    with open("results/hill_climb_trial_length.csv", "w", newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=' ', quotechar='|',
-                            quoting=csv.QUOTE_MINIMAL)
-        for i in range(len(vals)):
-            trial_length = vals[i]
-            writer.writerow([str(trial_length)])
-            for j in range(10):
-                print(i, j)
-                agent, _ = train.hill_climb(trial_length, 0, 1, 200)
-                writer.writerow([str(train.get_avg_reward(agent, 100))])
+    results = []
+    for i in range(len(nums_trials)):
+        for j in range(num_samples):
+            print("num_trials: %d, sample: %d" % (nums_trials[i], j + 1))
+            agent, _ = train.hill_climb(num_trials=nums_trials[i],
+                                        mean=0,
+                                        std_dev=1,
+                                        max_reward=200)
+            results.append((nums_trials[i], train.get_avg_reward(agent=agent, num_trials=100)))
+    show_plot(results, save=True, name="hill_climb_trial_length", xlabel="Number of Trials",
+              ylabel="Avg. Reward over 100 trials")
 
 
-def hill_climb_std_dev():
+def hill_climb_std_dev(std_devs: List[int], num_samples: int):
     """
     Tuning std_dev hyperparameter of "hill climbing" algorithm.
     """
-    vals = [0.1, 0.3, 1]
-    with open("results/hill_climb_std_dev.csv", "w", newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=' ', quotechar='|',
-                            quoting=csv.QUOTE_MINIMAL)
-        for i in range(len(vals)):
-            std_dev = vals[i]
-            writer.writerow([str(std_dev)])
-            for j in range(10):
-                print(std_dev, j)
-                agent, q = train.hill_climb(5, 0, std_dev, 200)
-                while True:
-                    try:
-                        t, reward = q.popleft()
-                        writer.writerow((str(t), str(reward)))
-                    except IndexError:
-                        break
-                writer.writerow([str(train.get_avg_reward(agent, 100))])
+    results_std_dev, results_trajectories = [], {std_dev: [] for std_dev in std_devs}
+    for i in range(len(std_devs)):
+        for j in range(num_samples):
+            print("std_dev: %d, sample: %d" % (std_devs[i], j + 1))
+            agent, trajectory = train.hill_climb(num_trials=5,
+                                                 mean=0,
+                                                 std_dev=std_devs[i],
+                                                 max_reward=200)
+            results_trajectories[std_devs[i]].append(list(trajectory))
+            results_std_dev.append((std_devs[i], train.get_avg_reward(agent=agent, num_trials=100)))
 
 
 def reinforce_alpha():
