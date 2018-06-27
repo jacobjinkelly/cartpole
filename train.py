@@ -88,40 +88,6 @@ def reinforce(alpha: float, num_rollouts: int, horizon: int, max_reward: float) 
     return agent, trajectory
 
 
-def reinforce_td(alpha: float, num_rollouts: int, horizon: int, max_reward: float) \
-        -> Tuple[StochasticAgent, List[Tuple[int, float]]]:
-    """
-    Trains an agent with a stochastic policy (<agent>) using modified
-    (temporal difference) REINFORCE policy gradient algorithm.
-    Hyperparameters:
-    alpha: step size
-    num_rollouts: number of rollouts to sample
-    horizon: time horizon for rollout
-    max_reward: train the agent until it achieves <max_reward>
-    """
-    agent = StochasticAgent()
-    trajectory = []
-    t, prev_reward = 0, 0
-    reward, data = sample_rollout(agent, num_rollouts, horizon)
-    while reward < max_reward:
-        trajectory.append((t, reward))
-        grad = np.zeros(4)
-        for i in range(len(data)):
-            state, action = data[i]
-            z = np.dot(agent.weights, state)  # activation
-            sigmoid = expit(z)
-            grad += (action * (1 - sigmoid) + (action - 1) * sigmoid) * state
-
-        agent.weights += alpha * (reward - prev_reward) * grad
-        prev_reward, (reward, data) = reward, sample_rollout(agent, num_rollouts, horizon)
-        t += 1
-        if t > 1000:
-            trajectory.append((t, -1))
-            break
-
-    return agent, trajectory
-
-
 def sample_rollout(agent: Agent, num_rollouts: int, horizon: int) -> Tuple[float, List[Tuple[np.ndarray, int]]]:
     """
     Samples <num_rollouts> rollouts with time horizon <horizon>, and returns
