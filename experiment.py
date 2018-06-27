@@ -14,17 +14,16 @@ def random_num_trials(nums_trials, num_samples=10):
     finding agent which solves environment.
     """
     results = []
-    for num_trials in nums_trials:
-        for i in range(num_samples):
-            print("num_trials: %d, sample: %d" % (num_trials, i))
-            results.append((num_trials, train.get_avg_reward(agent=train.random(population=10000,
-                                                                                num_trials=num_trials,
-                                                                                mean=0,
-                                                                                std_dev=1),
-                                                             num_trials=100)))
-    print(results)
+    for i in range(len(nums_trials)):
+        for j in range(num_samples):
+            print("num_trials: %d, sample: %d" % (nums_trials[i], j + 1))
+            results.append((nums_trials[i], train.get_avg_reward(agent=train.random(population=10000,
+                                                                                    num_trials=nums_trials[i],
+                                                                                    mean=0,
+                                                                                    std_dev=1),
+                                                                 num_trials=100)))
     show_plot(results, save=True, name="random_trial_length", xlabel="Number of Trials",
-              ylabel="Avg. Reward over %s samples" % num_samples)
+              ylabel="Avg. Reward over 100 trials")
 
 
 def hill_climb_trial_length():
