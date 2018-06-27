@@ -7,3 +7,6 @@ __pycache__/
 # Data #
 results/
 imgs/
+
+# OS Generated Files #
+.DS_Store
