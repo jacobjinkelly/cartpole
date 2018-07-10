@@ -1,4 +1,5 @@
-"""This module contains methods for training agents.
+"""
+This module contains methods for training agents.
 """
 
 from typing import Tuple, List
