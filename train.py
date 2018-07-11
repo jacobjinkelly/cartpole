@@ -14,20 +14,21 @@ from utils import np_seed
 np.random.seed(np_seed)
 
 
-def random(population: int, num_trials: int, mean: float, std_dev: float) -> Agent:
+def random(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Agent:
     """
-    Initialize <population> agents randomly, picks the best one.
-    The 'best' agent corresponds to the agent with the highest average reward
-    over <num_trials> trials.
+    Initialize the weights of agent randomly until its performance exceeds that specified by <max_reward>.
+    Hyperparameters:
+    num_trials: number of trials to sample for avg_reward of agent.
+    mean: mean of gaussian which new weights are sampled from.
+    std_dev: std dev of gaussian which new weights are sampled from.
+    max_reward: train the agent until it achieves <max_reward>
     """
-    max_reward = 0
-    best_agent = None
-    for _ in range(population):
-        agent = Agent(mean=mean, std_dev=std_dev)
+    agent = Agent()
+    reward = get_avg_reward(agent, num_trials)
+    while reward < max_reward:
+        agent.init_weights(mean, std_dev)
         reward = get_avg_reward(agent, num_trials)
-        if max_reward < reward:
-            best_agent, max_reward = agent, reward
-    return best_agent
+    return agent
 
 
 def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Tuple[Agent, List[Tuple[int, float]]]:
