@@ -22,7 +22,7 @@ class Agent:
 
     def __init__(self, mean: float=0, std_dev: float=1) -> None:
         """
-        Initalize weights over Gaussian with <mean> and <std_dev>.
+        Initialize weights over Gaussian with <mean> and <std_dev>.
         """
         self.weights = std_dev * np.random.randn(4) + mean
 
@@ -34,6 +34,12 @@ class Agent:
             return 1
         else:
             return 0
+
+    def init_weights(self, mean: float=0, std_dev: float=1) -> None:
+        """
+        Re-initialize the weights of the agent over Gaussian with <mean> and <std_dev>.
+        """
+        self.weights = std_dev * np.random.rand(4) + mean
 
     def set_weights(self, weights: np.ndarray) -> None:
         """
