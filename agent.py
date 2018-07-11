@@ -41,6 +41,12 @@ class Agent:
         """
         self.weights = std_dev * np.random.rand(4) + mean
 
+    def get_weights(self) -> np.ndarray:
+        """
+        Get the agent weights.
+        """
+        return self.weights
+
     def set_weights(self, weights: np.ndarray) -> None:
         """
         Set the agents weights to <weights>.
