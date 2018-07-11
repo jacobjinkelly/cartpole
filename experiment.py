@@ -5,24 +5,22 @@ This module records statistics of the agents' performance.
 from typing import List
 
 import train
-from visualize import show_plot
+from visualize import show_plot, show_freq_hist
 
 
-def random_trials(nums_trials: List[int], num_samples: int):
+def random_episodes(num_trials: int):
     """
-    Comparing number of trials to performance of "random" training algorithm at finding agent which solves environment.
+    Runs <num_trials> trials of the random training algorithm, records how many episodes until convergence.
     """
     results = []
-    for num_trials in nums_trials:
-        for i in range(num_samples):
-            print("num_trials: %d, sample: %d" % (num_trials, i + 1))
-            results.append((num_trials, train.get_avg_reward(agent=train.random(population=10000,
-                                                                                num_trials=num_trials,
-                                                                                mean=0,
-                                                                                std_dev=1),
-                                                             num_trials=100)))
-    show_plot(results, save=True, name="random_trial_length", xlabel="Number of Trials",
-              ylabel="Avg. Reward over 100 trials")
+    for i in range(num_trials):
+        print("num_trial: %d" % i)
+        _, trajectory = train.random(num_trials=100,
+                                     mean=0,
+                                     std_dev=1,
+                                     max_reward=195)
+        results.append(len(trajectory))
+    show_freq_hist(results, save=True, name="random_episodes", xlabel="Episodes", ylabel="Frequency")
 
 
 def hill_climb_trials(nums_trials: List[int], num_samples: int):
