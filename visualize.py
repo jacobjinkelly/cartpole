@@ -2,13 +2,14 @@
 This module renders visualizations of statistics obtained from experiment.py
 """
 import os
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def show_plot(points: List[Tuple[int, float]], save: bool=False, name: str="plot", xlabel: str="", ylabel: str=""):
+def show_plot(points: List[Tuple[Union[int, float], float]], save: bool=False, name: str="plot", xlabel: str="",
+              ylabel: str=""):
     """
     Show a scatter plot of the given points.
     """
@@ -27,9 +28,10 @@ def show_freq_hist(vals: List[int], save: bool=False, name: str="plot", xlabel: 
     """
     Plots a (normalized) frequency histogram
     """
-    plt.xticks([i for i in range(max(vals) + 1)]), plt.xlabel(xlabel), plt.ylabel(ylabel)  # formatting
+    plt.xticks([4 * i for i in range(max(vals) + 1)])
+    plt.xlabel(xlabel), plt.ylabel(ylabel)  # formatting
     # credit to https://stackoverflow.com/questions/9767241/setting-a-relative-frequency-in-a-matplotlib-histogram
-    plt.hist(vals, weights=np.zeros_like(vals) + 1 / len(vals))
+    plt.hist(vals, bins=max(vals) - min(vals), weights=np.zeros_like(vals) + 1 / len(vals))
     if save:
         if not os.path.isdir("imgs"):
             os.mkdir("imgs")
