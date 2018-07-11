@@ -14,7 +14,7 @@ from utils import np_seed
 np.random.seed(np_seed)
 
 
-def random(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Agent:
+def random(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Tuple[Agent, List[Tuple[int, float]]]:
     """
     Initialize the weights of agent randomly until its performance exceeds that specified by <max_reward>.
     Hyperparameters:
@@ -24,11 +24,14 @@ def random(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Age
     max_reward: train the agent until it achieves <max_reward>
     """
     agent = Agent()
-    reward = get_avg_reward(agent, num_trials)
+    trajectory = []
+    t, reward = 0, get_avg_reward(agent, num_trials)
     while reward < max_reward:
+        trajectory.append((t, reward))
         agent.init_weights(mean, std_dev)
         reward = get_avg_reward(agent, num_trials)
-    return agent
+        t += 1
+    return agent, trajectory
 
 
 def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) -> Tuple[Agent, List[Tuple[int, float]]]:
@@ -47,9 +50,9 @@ def hill_climb(num_trials: int, mean: float, std_dev: float, max_reward: int) ->
     while reward < max_reward:
         trajectory.append((t, reward))
         perturb = std_dev * np.random.randn(4) + mean
-        agent.weights += perturb
+        agent.set_weights(agent.get_weights() + perturb)
         if get_avg_reward(agent, num_trials) <= reward:
-            agent.weights -= perturb
+            agent.set_weights(agent.get_weights() - perturb)
         else:
             reward = get_avg_reward(agent, num_trials)
         t += 1
