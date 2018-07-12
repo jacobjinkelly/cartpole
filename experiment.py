@@ -23,6 +23,23 @@ def random_episodes(num_samples: int):
     show_freq_hist(results, save=True, name="random_episodes", xlabel="Episodes", ylabel="Frequency")
 
 
+def random_trials(nums_trials: List[int], num_samples: int):
+    """
+    Comparing number of trials to performance of random training algorithm at finding agent which solves environment.
+    """
+    results = []
+    for num_trials in nums_trials:
+        for i in range(num_samples):
+            print("num_trials: %d, sample: %d" % (num_trials, i + 1))
+            agent, _ = train.random(num_trials=num_trials,
+                                    mean=0,
+                                    std_dev=1,
+                                    max_reward=195)
+            results.append((num_trials, train.get_avg_reward(agent=agent, num_trials=100)))
+    show_plot(results, save=True, name="random_trial_length", xlabel="Number of Trials",
+              ylabel="Avg. Reward over 100 trials")
+
+
 def hill_climb_episodes(num_samples: int):
     """
     Runs <num_samples> trials of the hill_climb training algorithm, records how many episodes until convergence.
@@ -50,7 +67,7 @@ def hill_climb_trials(nums_trials: List[int], num_samples: int):
             agent, _ = train.hill_climb(num_trials=num_trials,
                                         mean=0,
                                         std_dev=1,
-                                        max_reward=200)
+                                        max_reward=195)
             results.append((num_trials, train.get_avg_reward(agent=agent, num_trials=100)))
     show_plot(results, save=True, name="hill_climb_trial_length", xlabel="Number of Trials",
               ylabel="Avg. Reward over 100 trials")
@@ -86,7 +103,7 @@ def reinforce_trials(nums_trials: List[int], num_samples: int):
             agent, trajectory = train.reinforce(lr=0.0001,
                                                 num_trials=num_trials,
                                                 horizon=200,
-                                                max_reward=200)
+                                                max_reward=195)
             results_trajectories[num_trials].append(trajectory)
             results_trials.append((num_trials, train.get_avg_reward(agent=agent, num_trials=100)))
     show_plot(results_trials, save=True, name="reinforce_trials", xlabel="Number of Trials",
