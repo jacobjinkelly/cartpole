@@ -8,12 +8,12 @@ import train
 from visualize import show_plot, show_freq_hist
 
 
-def random_episodes(num_trials: int):
+def random_episodes(num_samples: int):
     """
-    Runs <num_trials> trials of the random training algorithm, records how many episodes until convergence.
+    Runs <num_samples> trials of the random training algorithm, records how many episodes until convergence.
     """
     results = []
-    for i in range(num_trials):
+    for i in range(num_samples):
         print("num_trial: %d" % i)
         _, trajectory = train.random(num_trials=100,
                                      mean=0,
@@ -21,6 +21,21 @@ def random_episodes(num_trials: int):
                                      max_reward=195)
         results.append(len(trajectory))
     show_freq_hist(results, save=True, name="random_episodes", xlabel="Episodes", ylabel="Frequency")
+
+
+def hill_climb_episodes(num_samples: int):
+    """
+    Runs <num_samples> trials of the hill_climb training algorithm, records how many episodes until convergence.
+    """
+    results = []
+    for i in range(num_samples):
+        print("num_trial: %d" % i)
+        _, trajectory = train.hill_climb(num_trials=100,
+                                         mean=0,
+                                         std_dev=1,
+                                         max_reward=195)
+        results.append(len(trajectory))
+    show_freq_hist(results, save=True, name="hill_climb_episodes", xlabel="Episodes", ylabel="Frequency")
 
 
 def hill_climb_trials(nums_trials: List[int], num_samples: int):
@@ -49,11 +64,11 @@ def hill_climb_std_dev(std_devs: List[int], num_samples: int):
     results_std_dev, results_trajectories = [], {std_dev: [] for std_dev in std_devs}
     for std_dev in std_devs:
         for i in range(num_samples):
-            print("std_dev: %d, sample: %d" % (std_dev, i + 1))
-            agent, trajectory = train.hill_climb(num_trials=5,
+            print("std_dev: %s, sample: %d" % (std_dev, i + 1))
+            agent, trajectory = train.hill_climb(num_trials=100,
                                                  mean=0,
                                                  std_dev=std_dev,
-                                                 max_reward=200)
+                                                 max_reward=195)
             results_trajectories[std_dev].append(trajectory)
             results_std_dev.append((std_dev, train.get_avg_reward(agent=agent, num_trials=100)))
     show_plot(results_std_dev, save=True, name="hill_climb_std_dev", xlabel="Standard Deviation",
@@ -87,9 +102,9 @@ def reinforce_lr(lrs: List[float], num_samples: int):
         for i in range(num_samples):
             print("learning rate: %s, sample: %d" % (lr, i + 1))
             agent, trajectory = train.reinforce(lr=lr,
-                                                num_trials=5,
+                                                num_trials=100,
                                                 horizon=200,
-                                                max_reward=200)
+                                                max_reward=195)
             results_trajectories[lr].append(trajectory)
             results_lr.append((lr, train.get_avg_reward(agent=agent, num_trials=100)))
     show_plot(results_lr, save=True, name="reinforce_lr", xlabel="Learning Rate", ylabel="Avg. Reward over 100 trials")
