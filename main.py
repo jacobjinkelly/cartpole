@@ -1,5 +1,5 @@
 """
-The main class, for training and testing agents on the environment.
+The main class, for running experiments.
 """
 
 
@@ -9,6 +9,9 @@ def get_config():
     """
     from argparse import ArgumentParser
 
+    default_std_devs = [1, 3, 10]
+    default_lrs = [0.0001, 0.001, 0.01, 0.1]
+
     parser = ArgumentParser()
 
     parser.add_argument("--experiment", type=str, required=True, help="which experiment to run")
@@ -16,9 +19,10 @@ def get_config():
     parser.add_argument("--np_seed", type=int, help="seed for np.random")
     parser.add_argument("--nums_trials", nargs="+", type=int, help=("numbers of trials to try (required for "
                                                                     "{random, hill_climb, reinforce}_trials"))
-    parser.add_argument("--std_devs", nargs="+", type=int, help="standard deviations to try (required for "
-                                                                "hill_climb_std_dev)")
-    parser.add_argument("--lrs", nargs="+", type=int, help="learning rates to try (required for reinforce_lr")
+    parser.add_argument("--std_devs", nargs="+", type=int, default=default_std_devs,
+                        help="standard deviations to try (required for hill_climb_std_dev)")
+    parser.add_argument("--lrs", nargs="+", type=int, default=default_lrs,
+                        help="learning rates to try (required for reinforce_lr")
 
     return parser.parse_known_args()
 
@@ -36,15 +40,18 @@ if __name__ == "__main__":
     gym.logger.set_level(40)
 
     try:
-        if args.experiment == "random_trials":
-            experiment.random_trials(nums_trials=args.nums_trials,
-                                     num_samples=args.num_samples)
+        if args.experiment == "random_episodes":
+            experiment.random_episodes(num_samples=args.num_samples)
+        elif args.experiment == "hill_climb_episodes":
+            experiment.hill_climb_episodes(num_samples=args.num_samples)
         elif args.experiment == "hill_climb_trials":
             experiment.hill_climb_trials(nums_trials=args.nums_trials,
                                          num_samples=args.num_samples)
         elif args.experiment == "hill_climb_std_dev":
             experiment.hill_climb_std_dev(std_devs=args.std_devs,
                                           num_samples=args.num_samples)
+        elif args.experiment == "reinforce_episodes":
+            experiment.reinforce_episodes(num_samples=args.num_samples)
         elif args.experiment == "reinforce_trials":
             experiment.reinforce_trials(nums_trials=args.nums_trials,
                                         num_samples=args.num_samples)

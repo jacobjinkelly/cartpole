@@ -39,6 +39,14 @@ def show_freq_hist(vals: List[int], save: bool=False, name: str="plot", xlabel: 
     plt.show()
 
 
+def show_trajectories(trajectories):
+    """
+    Plots average trajectories.
+    """
+    for trajectory in trajectories:
+        pass
+
+
 def draw_function(f: Callable[[np.ndarray], float], save: bool=True, name: str="", clear_plot: bool=True):
     """
     Plot a smooth curve of the 1D function <f>.

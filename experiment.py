@@ -92,6 +92,21 @@ def hill_climb_std_dev(std_devs: List[int], num_samples: int):
               ylabel="Avg. Reward over 100 trials")
 
 
+def reinforce_episodes(num_samples: int):
+    """
+    Runs <num_samples> trials of the REINFORCE training algorithm, records how many episodes until convergence.
+    """
+    results = []
+    for i in range(num_samples):
+        print("num_trial: %d" % i)
+        _, trajectory = train.reinforce(num_trials=100,
+                                        lr=0.01,
+                                        horizon=200,
+                                        max_reward=195)
+        results.append(len(trajectory))
+    show_freq_hist(results, save=True, name="reinforce_episodes", xlabel="Episodes", ylabel="Frequency")
+
+
 def reinforce_trials(nums_trials: List[int], num_samples: int):
     """
     Comparing number of trials to performance of REINFORCE algorithm at finding agent which solves environment.
@@ -119,9 +134,10 @@ def reinforce_lr(lrs: List[float], num_samples: int):
         for i in range(num_samples):
             print("learning rate: %s, sample: %d" % (lr, i + 1))
             agent, trajectory = train.reinforce(lr=lr,
-                                                num_trials=100,
+                                                num_trials=5,
                                                 horizon=200,
                                                 max_reward=195)
+            print(len(trajectory))
             results_trajectories[lr].append(trajectory)
             results_lr.append((lr, train.get_avg_reward(agent=agent, num_trials=100)))
     show_plot(results_lr, save=True, name="reinforce_lr", xlabel="Learning Rate", ylabel="Avg. Reward over 100 trials")
